@@ -1,0 +1,11 @@
+# 忽略所有資料檔
+*.csv
+*.xlsx
+*.db
+
+# 忽略 Python 暫存檔
+__pycache__/
+*.pyc
+
+# 忽略 macOS 系統檔案
+.DS_Store
