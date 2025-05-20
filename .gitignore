@@ -9,3 +9,5 @@ __pycache__/
 
 # 忽略 macOS 系統檔案
 .DS_Store
+dataset/
+clean_spotify_songs.csv
