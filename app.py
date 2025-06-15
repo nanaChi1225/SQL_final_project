@@ -95,6 +95,7 @@ def search_songs(keyword, genre, year_range):
     return df
 
 # ---------- 分群推薦 ----------
+@st.cache_data(show_spinner=False)
 def get_cluster_recommendations():
     engine = get_engine()
     with engine.connect() as conn:
@@ -108,9 +109,9 @@ def get_cluster_recommendations():
     df_all = df_all.dropna(subset=features)
     scaler = StandardScaler()
     X = scaler.fit_transform(df_all[features])
-    df_all["cluster"] = KMeans(n_clusters=10, random_state=42).fit_predict(X)
+    df_all["cluster"] = KMeans(n_clusters=10).fit_predict(X)
 
-    sampled = df_all.groupby("cluster").apply(lambda g: g.sample(1, random_state=42)).reset_index(drop=True)
+    sampled = df_all.groupby("cluster").apply(lambda g: g.sample(1)).reset_index(drop=True)
     sampled["YouTube"] = sampled.apply(
         lambda row: f"https://www.youtube.com/results?search_query={'+'.join(row['title'].split())}+{'+'.join(row['artist'].split())}",
         axis=1
@@ -352,6 +353,10 @@ def main():
 
     if page == "🎧 人格推薦":
         st.header("🎧 勾選喜歡的歌曲以預測人格")
+
+        if st.button("🔄 重新產生推薦歌單"):
+             st.cache_data.clear()
+             
         df = get_cluster_recommendations()
         selected = []
 
@@ -360,6 +365,8 @@ def main():
             if col1.checkbox("", key=row["song_id"]):
                 selected.append(row["song_id"])
             col2.markdown(f"**{row['title']} - {row['artist']}** [🔗]({row['YouTube']})", unsafe_allow_html=True)
+
+        
 
         if st.button("送出喜好"):
             if not selected:
